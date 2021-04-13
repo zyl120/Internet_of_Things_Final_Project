@@ -9,7 +9,7 @@ In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer an
 3. With the `Open Media` window open, click `Add...` button under the `File` tab. Then choose the music file you want to stream. A file with long time duration is recommended as VLC does not support streaming list of music files.
 4. After selecting the music file, click `Stream` button on the bottom right corner. Then click `Next` button again until you see the `Destination Setup` window.
 5. In the `Destination Setup` window, select `HTTP` as the `New destination`. Then click `Add` button. If you want listen to the stream on the server as well, check the `Display locally` box. Under the `HTTP` tab, set the `Port` number. Do not change the `Path`. Then click `Next` button.
-6. In the `Transcoding Options` window, check `Activate Transcoing` box. Select `Audio - MP3` or `Audio - FLAC` as the profile depending on the original music file format. Then click `Next` button.
+6. In the `Transcoding Options` window, check `Activate Transcoding` box. Select `Audio - MP3` or `Audio - FLAC` as the profile depending on the original music file format. Then click `Next` button.
 7. In the `Option Setup` window, do not change anything, click `Stream` button on the bottom right corner.
 8. Then streaming server is now set up.
 
