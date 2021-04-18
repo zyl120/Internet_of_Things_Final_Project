@@ -10,6 +10,8 @@ import RPi.GPIO as GPIO
 from HCSR04_lib import HCSR04
 import rssi
 import threading
+import time
+import multiprocessing
 
 
 def RSAKeygen():
@@ -46,7 +48,7 @@ def sendMessage(name, type, message):
     ftype = type.ljust(6, " ")
     fmessage = message.ljust(52, " ")
     tdata_exp = fname + ftype + fmessage
-    print(tdata_exp)
+    print("[SEND]  " + tdata_exp)
     s.send(tdata_exp.encode())
 
 
@@ -58,7 +60,7 @@ def recvMessage():
         exit(1)
     finally:
         rdata = rdata_bytes.decode()
-        print(rdata)
+        print("[RECV]  " + rdata)
         dname = rdata[0:6].strip(" ")
         dtype = rdata[6:12].strip(" ")
         dmessage = rdata[12:64].strip(" ")
@@ -95,33 +97,12 @@ def bluetoothDistance():
 
 
 def hotspotDistance(SSIDs, SU, MP, N):
-    # rssi = -100 # small value to make it minimize
-    # old_rssi = MP
-    # distance = 1000 # large value to make it maxmize
-    # rssiList = list()
-    # for i in range(3):
-    #     ap_info = rssi_scanner.getAPinfo(networks=SSIDs, sudo=SU)
-    #     #signalStrength = -signalStrength
-    #     try:
-    #         rssi = ap_info[0]["signal"]
-    #     except:
-    #         if(len(rssiList) == 0):
-    #             rssi = -100
-    #         else:
-    #             rssi = sum(rssiList)/len(rssiList)
-    #     finally:
-    #         rssiList.append(rssi)
-    #         old_rssi = rssi
-    #     print(i, rssi)
-    # rssi_avg = sum(rssiList)/len(rssiList)
-    # print(rssi_avg)
     ap_info = rssi_scanner.getAPinfo(networks=SSIDs, sudo=SU)
     try:
         rssi = ap_info[0]["signal"]
     except:
         rssi = -100
     
-
     distance = 10**((MP-rssi)/(10*N))
     return distance
 
@@ -170,7 +151,6 @@ if __name__ == "__main__":
   
         while True:
             msg = recvMessage()
-            print(msg)
             if(msg[0] == "CMD"):
                 if(msg[1] == "STOP"):
                     s.close()
@@ -178,14 +158,13 @@ if __name__ == "__main__":
                 elif(msg[1] == "MEASUREDIST"):
                     dist = measureDistance()
                     dist_string = str(dist)
-                    sendMessage(name, "CMD", dist_string)
+                    sendMessage(name, "DIST", dist_string)
                 elif(msg[1] == "MEASUREBLUETOOTH"):
                     bluetoothDistance()
                 elif(msg[1] == "MEASURESSID"):
                     dist = hotspotDistance(ssid, True, -40, 2)
-                    print(dist)
                     dist_str = str(dist)
-                    sendMessage(name, "CMD", dist_str)
+                    sendMessage(name, "DIST", dist_str)
                     #ap_info = rssi_scanner.getAPinfo(networks=ssid, sudo=True)
                     #print(ap_info[0]["signal"])
                     #print(ap_info)

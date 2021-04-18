@@ -13,7 +13,7 @@ def sendMessage(connection, name, type, message):
     ftype = type.ljust(6, " ")
     fmessage = message.ljust(52, " ")
     tdata_exp = fname + ftype + fmessage
-    print(tdata_exp)
+    print("[SEND]  " + tdata_exp)
     try:
         connection.send(tdata_exp.encode())
     except:
@@ -32,10 +32,10 @@ def recvMessage(connection):
     except:
         print("Device offline is detected")
         exit(1)
-        #return ("ALL", "WARNIN", "OFFLINE")
+
     else:
         rdata = rdata_bytes.decode()
-        print(rdata)
+        print("[RECV]  " + rdata)
         dname = rdata[0:6].strip(" ")
         dtype = rdata[6:12].strip(" ")
         dmessage = rdata[12:64].strip(" ")
@@ -87,7 +87,6 @@ try:
                 continue
         msg = recvMessage(c)
         names[count] = msg[0]
-        print(msg)
         connections[count] = c
         
         count += 1
@@ -104,40 +103,26 @@ try:
     for i in range(len(connections)):
         sendMessage(connections[i], "ALL", "TIME", "REPORTTIME")
         msg = recvMessage(connections[i])
-        print(msg)
 
-    
-    for j in range(10):
+    while True:
+        sendGlobalMessage(connections, "ALL", "CMD", "MEASURESSID")
         # First get distance measurement from client
         for i in range(len(connections)):
-            #sendMessage(connections[i], names[i], "CMD", "MEASUREBLUETOOTH")
-            #sendMessage(connections[i], names[i], "CMD", "MEASUREDIST")
-            sendMessage(connections[i], names[i], "CMD", "MEASURESSID")
             msg = recvMessage(connections[i])
-            print(msg)
             results[i] = float(msg[2])
-            #sendMessage(connections[i], names[i], "CMD", "MEASURESSID")
-            #time.sleep(0.5)
 
         # Find the smallest distance in the results list
         min_value = min(results)
         min_index = results.index(min_value)
-
-        #sendMessage(connections[j], names[j], "AUDIO", "STARTSTREAM")
 
         sendMessage(connections[min_index], names[min_index], "AUDIO", "STARTSTREAM")
         time.sleep(1.75) # Minimize the delay
 
         for i in range(len(connections)):
             if(i != min_index):
-            #if(i != j):
                 sendMessage(connections[i], names[i], "AUDIO", "ENDSTREAM")
-        time.sleep(5)
+        time.sleep(1.75)
             
-
-
-
-
     for i in range(len(connections)):
         sendMessage(connections[i], "ALL", "CMD", "STOP")
         connections[i].close()
