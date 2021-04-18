@@ -11,7 +11,10 @@ In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer an
 5. In the `Destination Setup` window, select `HTTP` as the `New destination`. Then click `Add` button. If you want listen to the stream on the server as well, check the `Display locally` box. Under the `HTTP` tab, set the `Port` number. Do not change the `Path`. Then click `Next` button.
 6. In the `Transcoding Options` window, check `Activate Transcoding` box. Select `Audio - MP3` or `Audio - FLAC` as the profile depending on the original music file format. Then click `Next` button.
 7. In the `Option Setup` window, do not change anything, click `Stream` button on the bottom right corner.
-8. Then streaming server is now set up.
+8. Then streaming server is now set up.  
+------------------
+or alternatively, use some online radio stations, such as [WRPI](https://www.wrpi.org/).
+
 
 # Set up control server
 1. Download the `Server.py` file.
@@ -26,4 +29,24 @@ In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer an
 5. Ideally, when the control server and Raspberry Pi are under the same network, you should see `allow connection from IP_ADDRESS?` message on the control server terminal. You should check the prompted ip address with the actual Raspberry Pi address. To allow connection, type `y` in the control server terminal.
 6. Repeat the above procedures to connect all clients to the control server.
 7. After all clients are setup, the control server will send command to the clients to control the audio playback. You should hear the music from streaming server with the headphone connected to the clients. Only one device will play the music at the same time.
+
+
+# Command Details
+Each TCP message consists of 64 characters. The server and clients will create a buffer of size 64 each time to avoid data loss. The structure is as follows:  
+|name(6 characters)|type(6 characters)|message(52 characters)|  
+The name is 6 characters long. The type is 6 characters long. The message is 52 characters long. If the server wants to send a global message the name `ALL` is used as the indicator.
+Below is the table for all possible types and messages:
+|Type|Message|Description|
+|----|-------|-----|
+|SADDR| the streaming server address| server &#8594; clients, the clients will set the streaming server address.|
+|HSADDR| the name of mobile hotspot| server &#8594; clients, the clients will set the hotspot name for RSSI localization.|
+|TIME| REPORTTIME| server &#8594; clients, the clients will send the client local time back to the server.|
+|CMD| MEASURESSID| server &#8594; clients, the clients will report distance back to the server.|
+|CMD|STOP| server &#8594; clients, the clients will disconnect from the server.|
+|AUDIO|STARTSTREAM| server &#8594; clients, the clients will start to play the audio.|
+|AUDIO|ENDSTREAM| server &#8594; clients, the clients will stop the audio.|
+|DIST| the measured distance| server &#8592; clients, the clients will send the distance based on RSSI localization to the server.|
+|IP| the local IP address| server &#8592; clients, the clients will send the localhost IP to the server.|  
+
+All other spaces in the message will be filled with `␣`.
 
