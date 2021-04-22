@@ -3,6 +3,7 @@ import socket
 import re
 from datetime import datetime
 import time
+import numpy as np
 
 
 def sendMessage(connection, name, type, message):
@@ -61,11 +62,14 @@ name = "ALL"
 
 threads = [None] * num_clients
 results = [None] * num_clients
-old_results = [1.0] * num_clients
+old_results = [-100] * num_clients
 error_counts = [0] * num_clients
 connections = [None] * num_clients
 names = [None] * num_clients
 
+pos_A = np.array((-42.9, -61.3, -72.6))
+pos_B = np.array((-64.53, -31.88, -65.02))
+pos_C = np.array((-67.97, -58.45, -58.75))
 
 try:
     print("=" * 79)
@@ -107,25 +111,43 @@ try:
         msg = recvMessage(connections[i])
 
     while True:
-        sendGlobalMessage(connections, "ALL", "CMD", "MEASURESSID")
+        #sendGlobalMessage(connections, "ALL", "CMD", "MEASURESSID")
+        sendGlobalMessage(connections, "ALL", "RSSI", "MEASURERSSI")
+        dist = [100,100,100]
         # First get distance measurement from client
         for i in range(len(connections)):
             msg = recvMessage(connections[i])
-            if (msg[2] != "100.0"):
-                old_results[i] = results[i]
-                results[i] = float(msg[2])
-                error_counts[i] = 0
+            # Get the RSSI reading from the clients.
+            if (msg[0] == names[0]):
+                if (msg[2] == "-100"):
+                    results[0] == old_results[0]
+                else:
+                    results[0] = float(msg[2])
+                    old_results[0] = results[0]
+            elif (msg[0] == names[1]):
+                if (msg[2] == "-100"):
+                    results[1] == old_results[1]
+                else:
+                    results[1] = float(msg[2])
+                    old_results[1] = results[1]
             else:
-                # Use old value if signal outside range
-                results[i] = old_results[i]
-                error_counts[i] += 1
-            if(error_counts[i] >= 3):
-                # Exit the program if some connections failed for 3 times.
-                print("[WARN]  " + names[i] + " cannot connect to " + ssid)
+                if (msg[2] == "-100"):
+                    results[2] == old_results[2]
+                else:
+                    results[2] = float(msg[2])
+                    old_results[2] = results[2]
+        
+        # Create np array for calculation.
+        results = np.array(results)
+        print("[INFO]  " + str(results))
+        dist[0] = np.linalg.norm(results - pos_A)
+        dist[1] = np.linalg.norm(results - pos_B)
+        dist[2] = np.linalg.norm(results - pos_C)
+        print("[INFO]  " + str(dist))
 
-        # Find the smallest distance in the results list
-        min_value = min(results)
-        min_index = results.index(min_value)
+        # Find the smallest distance in the dist list
+        min_value = min(dist)
+        min_index = dist.index(min_value)
 
         sendMessage(connections[min_index], names[min_index], "AUDIO", "STARTSTREAM")
         time.sleep(1.75) # Minimize the delay
@@ -133,7 +155,7 @@ try:
         for i in range(len(connections)):
             if(i != min_index):
                 sendMessage(connections[i], names[i], "AUDIO", "ENDSTREAM")
-        time.sleep(1.75)
+        #time.sleep(1.75)
             
     for i in range(len(connections)):
         sendMessage(connections[i], "ALL", "CMD", "STOP")

@@ -97,7 +97,6 @@ try:
         if(count == num_clients):
             break
 
-
     print("all devices found")
 
     sendGlobalMessage(connections, name, "SADDR", stream)
