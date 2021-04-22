@@ -61,6 +61,15 @@ def hotspotDistance(SSIDs, SU, MP, N):
     return distance
 
 
+def hotspotRSSI(SSIDs, SU):
+    ap_info = rssi_scanner.getAPinfo(networks=SSIDs, sudo=SU)
+    try:
+        rssi = ap_info[0]["signal"]
+    except:
+        rssi = -100
+    return rssi
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--server", type=str, default="127.0.0.1",
@@ -122,6 +131,11 @@ if __name__ == "__main__":
                         streamMedia.play()
                 elif(msg[1] == "ENDSTREAM"):
                     streamMedia.stop()
+            elif(msg[0] == "RSSI"):
+                if(msg[1] == "MEASURERSSI"):
+                    rssi = hotspotRSSI(ssid, True)
+                    rssi_str = str(rssi)
+                    sendMessage(name, "RSSI", rssi_str)
             else:
                 continue
 

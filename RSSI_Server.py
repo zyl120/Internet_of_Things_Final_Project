@@ -61,10 +61,11 @@ name = "ALL"
 
 threads = [None] * num_clients
 results = [None] * num_clients
-old_results = [1.0] * num_clients
-error_counts = [0] * num_clients
 connections = [None] * num_clients
 names = [None] * num_clients
+RSSI0 = list()
+RSSI1 = list()
+RSSI2 = list()
 
 
 try:
@@ -106,35 +107,34 @@ try:
         sendMessage(connections[i], "ALL", "TIME", "REPORTTIME")
         msg = recvMessage(connections[i])
 
-    while True:
-        sendGlobalMessage(connections, "ALL", "CMD", "MEASURESSID")
-        # First get distance measurement from client
+    for _ in range(100):
+        sendGlobalMessage(connections, "ALL", "RSSI", "MEASURERSSI")
         for i in range(len(connections)):
             msg = recvMessage(connections[i])
-            if (msg[2] != "100.0"):
-                old_results[i] = results[i]
-                results[i] = float(msg[2])
-                error_counts[i] = 0
-            else:
-                # Use old value if signal outside range
-                results[i] = old_results[i]
-                error_counts[i] += 1
-            if(error_counts[i] >= 3):
-                # Exit the program if some connections failed for 3 times.
-                print("[WARN]  " + names[i] + " cannot connect to " + ssid)
+            if (msg[2] != "-100"):
+                if i == 0:
+                    RSSI0.append(float(msg[2]))
+                elif i == 1:
+                    RSSI1.append(float(msg[2]))
+                else:
+                    RSSI2.append(float(msg[2]))
+        time.sleep(0.5)
 
-        # Find the smallest distance in the results list
-        min_value = min(results)
-        min_index = results.index(min_value)
+    rssi_avg0 = 0
+    rssi_avg1 = 0
+    rssi_avg2 = 0
+    if (len(connections) == 1):
+        rssi_avg0 = sum(RSSI0) / len(RSSI0)
+    elif (len(connections) == 2):
+        rssi_avg0 = sum(RSSI0) / len(RSSI0)
+        rssi_avg1 = sum(RSSI1) / len(RSSI1)
+    else:
+        rssi_avg0 = sum(RSSI0) / len(RSSI0)
+        rssi_avg1 = sum(RSSI1) / len(RSSI1)
+        rssi_avg2 = sum(RSSI2) / len(RSSI2)
 
-        sendMessage(connections[min_index], names[min_index], "AUDIO", "STARTSTREAM")
-        time.sleep(1.75) # Minimize the delay
+    print(rssi_avg0, rssi_avg1, rssi_avg2)
 
-        for i in range(len(connections)):
-            if(i != min_index):
-                sendMessage(connections[i], names[i], "AUDIO", "ENDSTREAM")
-        time.sleep(1.75)
-            
     for i in range(len(connections)):
         sendMessage(connections[i], "ALL", "CMD", "STOP")
         connections[i].close()
