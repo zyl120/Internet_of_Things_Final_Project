@@ -3,6 +3,11 @@ This is the description file for the IoT final project
 
 In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer and one streaming server to build a network to control wired speakers. Raspberry Pi can also be used to be the control computer. For the streaming server, you need a computer with VLC media player installed. The user need to have a phone with mobile hotspot capabilities. 
 
+
+**Short Demo:** [Short Demo](https://youtu.be/-1pG2TTVRKY)  
+**Full Demo:** [Full Demo](https://youtu.be/Ytn-jPnTPTY)
+
+
 # Set up streaming server
 1. Install VLC media player from the [VLC Official Site](https://www.videolan.org/).
 2. With the VLC media player window open, click `Media` button on the top left corner. Then select `Stream...` option.
@@ -15,6 +20,16 @@ In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer an
 ------------------
 or alternatively, use some online radio stations, such as [WRPI](https://www.wrpi.org/).
 
+# Find the location fingerprint of the speakers
+1. Download the `RSSI_Server.py` file.
+2. `python3 RSSI_Server.py -p [port number] -a [address of streaming server, e.g. http://192.168.0.100:8080] -n [number of Raspberry Pis in the network] -s [SSID of the mobile hotspot]`. If there is no dependency error, you should see `waiting for connection` shown in the terminal. 
+3. Then we need to setup the 3 Raspberry Pis as clients. 
+4. After setting up the clients, the program will automatically run the RSSI scan of the provided mobile hotspot SSID 100 times. Then the program will print the average RSSI from the three Raspberry Pis. Use the readings to build a fingerprint based localization database. 
+5. Modify the `Server.py` file to reflect the RSSI readings. (E.g., `RSSI.xlsx` and  
+pos_A = np.array((-42.9, -61.3, -72.6))  
+pos_B = np.array((-64.53, -31.88, -65.02))  
+pos_C = np.array((-67.97, -58.45, -58.75))  
+)
 
 # Set up control server
 1. Download the `Server.py` file.
@@ -24,8 +39,8 @@ or alternatively, use some online radio stations, such as [WRPI](https://www.wrp
 # Set up clients
 1. Before running the Python script, you need to run `pip3 install python-vlc` and `pip3 install rssi` to install the 2 dependencies.
 2. You should follow [github page](https://github.com/jvillagomez/rssi_module/issues/1) to modify one error in the `rssi` module.
-3. Download the `Raspberry.py` file to the Raspberry Pis.
-4. Run the script with `python3 Raspberry.py -s [server address] -p [port number] -n [name for this client]`. 
+3. Download the `RSSI_Raspberry.py` file to the Raspberry Pis.
+4. Run the script with `python3 RSSI_Raspberry.py -s [server address] -p [port number] -n [name for this client]`. 
 5. Ideally, when the control server and Raspberry Pi are under the same network, you should see `allow connection from IP_ADDRESS?` message on the control server terminal. You should check the prompted ip address with the actual Raspberry Pi address. To allow connection, type `y` in the control server terminal.
 6. Repeat the above procedures to connect all clients to the control server.
 7. After all clients are setup, the control server will send command to the clients to control the audio playback. You should hear the music from streaming server with the headphone connected to the clients. Only one device will play the music at the same time.
@@ -41,10 +56,11 @@ Below is the table for all possible types and messages:
 |SADDR| the streaming server address| server &#8594; clients, the clients will set the streaming server address.|
 |HSADDR| the name of mobile hotspot| server &#8594; clients, the clients will set the hotspot name for RSSI localization.|
 |TIME| REPORTTIME| server &#8594; clients, the clients will send the client local time back to the server.|
-|CMD| MEASURESSID| server &#8594; clients, the clients will report distance back to the server.|
 |CMD|STOP| server &#8594; clients, the clients will disconnect from the server.|
 |AUDIO|STARTSTREAM| server &#8594; clients, the clients will start to play the audio.|
 |AUDIO|ENDSTREAM| server &#8594; clients, the clients will stop the audio.|
+|RSSI| MEASURERSSI| server &#8594; clients, the clients will send the RSSI of the mobile hotspot to the server.|
+|RSSI| RSSI reading of the hotspot| server &#8592; clients, the clients will send the RSSI of the mobile hotspot to the server.|
 |DIST| the measured distance| server &#8592; clients, the clients will send the distance based on RSSI localization to the server.|
 |IP| the local IP address| server &#8592; clients, the clients will send the localhost IP to the server.|  
 
