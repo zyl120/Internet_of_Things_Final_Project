@@ -6,6 +6,8 @@ In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer an
 
 **Short Demo:** [Short Demo](https://youtu.be/-1pG2TTVRKY)  
 **Full Demo:** [Full Demo](https://youtu.be/Ytn-jPnTPTY)
+**Slides:** [Google Slides](https://docs.google.com/presentation/d/1ZKCDQBvoIXoaRCJKD-73gI4yF7cQ5Ve4T34pEpJ1A2Q/edit?usp=sharing)
+**Final Report:** [Google Docs](https://docs.google.com/document/d/1tK4vvEy43rZNPsVUKbmMAsqnzWZ4k2_EBfzdRdwpKUE/edit?usp=sharing)
 
 
 # Set up streaming server
