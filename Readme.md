@@ -10,6 +10,8 @@ In the final project, 3 Raspberry Pis, 3 wired speakers, one control computer an
 **Final Report:** [Google Docs](https://docs.google.com/document/d/1tK4vvEy43rZNPsVUKbmMAsqnzWZ4k2_EBfzdRdwpKUE/edit?usp=sharing)
 
 
+
+***<span style="color:red">The contents below are voided. See the Final Report's appendix for updated version.</span>***
 # Set up streaming server
 1. Install VLC media player from the [VLC Official Site](https://www.videolan.org/).
 2. With the VLC media player window open, click `Media` button on the top left corner. Then select `Stream...` option.
